@@ -1,0 +1,133 @@
+import geopandas as gpd
+import pandas as pd
+
+
+workDir = "D:/USGS Analyses/NVC-Analyses/"
+dataDir = workDir+"data/"
+
+gdfAtt = gpd.read_file(dataDir+"attribute_table.dbf")
+gdfRas = gpd.read_file(dataDir+"combnvcpader1.img.vat.dbf")
+
+# This will show unique values across multiple columns
+column_values = gdfAtt[['GAPST_CD',
+'MANG_NAME',
+'MANG_TYPE',
+'CLASS']].values.ravel()
+unique_values =  pd.unique(column_values)
+
+# Drop the geometery column from the GeoDataframe of the raster attribute table
+dfRAT = gdfRas.drop(['geometry'], axis=1)
+
+# Pull out only the relevant columns of the data table
+dfSub = gdfAtt[['GAPST_CD',
+'MANG_NAME',
+'MANG_TYPE',
+'CLASS',
+'NVCGRP_LOO',
+'GROUP',
+'PAD2_1CONC',
+'ECOREGIONS',
+'NVC_NAME',
+'NVC_CLASS',
+'MACROGROUP',
+'MACROGRO_1',
+'US_L4CODE',
+'US_L4NAME',
+'US_L3CODE',
+'US_L3NAME']]
+
+# Make sure there are no duplicate rows
+dfTable = dfSub.drop_duplicates()
+
+# Now merge species range HUCs dataframe with HUC shapefile dataframe
+dfMerge = pd.merge(left=dfRAT, right=dfTable, how='inner',left_on=['NVCGRP_LOO','ECOREGIONS','PAD2_1CONC'], right_on=['NVCGRP_LOO','ECOREGIONS','PAD2_1CONC'])
+
+
+
+
+Here is a list of NVC group lookup codes NOT IN ATTRIBUTE_TABLE but IN RASTER
+{2,
+ 3,
+ 4,
+ 5,
+ 6,
+ 7,
+ 8,
+ 9,
+ 10,
+ 11,
+ 12,
+ 13,
+ 14,
+ 15,
+ 19,
+ 20,
+ 21,
+ 22,
+ 24,
+ 25,
+ 26,
+ 27,
+ 51,
+ 55,
+ 81,
+ 103,
+ 105,
+ 106,
+ 107,
+ 109,
+ 112,
+ 118,
+ 122,
+ 124,
+ 144,
+ 145,
+ 146,
+ 147,
+ 148,
+ 149,
+ 153,
+ 155,
+ 156,
+ 157,
+ 158,
+ 161,
+ 164,
+ 173,
+ 178,
+ 180,
+ 181,
+ 190,
+ 191,
+ 201,
+ 211,
+ 212,
+ 213,
+ 214,
+ 215,
+ 216,
+ 217,
+ 218,
+ 219,
+ 220,
+ 221,
+ 222,
+ 223,
+ 224,
+ 225,
+ 226,
+ 227,
+ 254,
+ 258,
+ 261,
+ 265,
+ 267,
+ 268,
+ 287,
+ 295,
+ 296,
+ 297,
+ 298,
+ 299,
+ 300,
+ 305}
